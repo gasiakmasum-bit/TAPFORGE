@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # TAPFORGE — Telegram sync version
 
 ## Важливо про токен
@@ -60,3 +61,6 @@ https://t.me/BOT_USERNAME?start=TFUSERID
 - записує `referredBy`
 - дає бонус запрошувачу
 - показує кількість рефералів на екрані друзів
+=======
+# TAPFORGE
+>>>>>>> a6ee186abaea8f74a50837d8c03c2a2c15f02219
