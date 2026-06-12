@@ -1,0 +1,1089 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>TAPFORGE</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07071a;
+      --card: rgba(16, 14, 38, 0.88);
+      --card2: rgba(255, 255, 255, 0.05);
+      --line: rgba(140, 80, 255, 0.22);
+      --line2: rgba(255,255,255,0.07);
+      --text: #f0eeff;
+      --muted: #9590c0;
+      --violet: #9d4dff;
+      --violet2: #c080ff;
+      --blue: #15c9ff;
+      --green: #3cffb0;
+      --gold: #ffd700;
+      --danger: #ff4d79;
+      --orange: #ff9f43;
+      --safe: env(safe-area-inset-bottom, 0px);
+      --radius: 20px;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+    html, body { min-height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', Arial, sans-serif; font-size: 15px; }
+    body {
+      background:
+        radial-gradient(ellipse 120% 60% at 50% -10%, rgba(100,30,200,0.35) 0%, transparent 65%),
+        radial-gradient(ellipse 80% 40% at 80% 80%, rgba(21,201,255,0.07) 0%, transparent 55%),
+        #07071a;
+      overflow-x: hidden;
+    }
+    button, input { font: inherit; }
+    button { cursor: pointer; border: 0; background: none; }
+
+    .app { width: 100%; max-width: 440px; min-height: 100vh; margin: 0 auto; padding: 12px 14px calc(88px + var(--safe)); }
+
+    .top { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 4px 0 10px; }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .logo { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: linear-gradient(135deg, #b363ff 0%, #4a18e0 100%); box-shadow: 0 0 24px rgba(157,77,255,0.6), inset 0 1px 0 rgba(255,255,255,0.2); }
+    .logo svg { width: 24px; height: 24px; }
+    .brand-name { font-size: 20px; font-weight: 900; letter-spacing: 1.5px; background: linear-gradient(90deg, #c080ff, #7af0ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .header-right { display: flex; align-items: center; gap: 8px; }
+    .conn-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+    .btn { border: 0; border-radius: 14px; padding: 11px 16px; color: #fff; font-weight: 700; background: linear-gradient(135deg, #9d4dff, #4716c5); box-shadow: 0 4px 20px rgba(157,77,255,0.32), inset 0 1px 0 rgba(255,255,255,0.15); transition: transform 0.1s, filter 0.1s; position: relative; overflow: hidden; }
+    .btn::after { content:''; position:absolute; inset:0; background: linear-gradient(rgba(255,255,255,0.06),transparent); pointer-events:none; }
+    .btn:active { transform: scale(0.96); filter: brightness(1.1); }
+    .btn:disabled { opacity: .45; cursor: default; transform: none; }
+    .btn.sm { padding: 8px 13px; border-radius: 11px; font-size: 13px; }
+    .btn.ghost { background: rgba(255,255,255,0.07); border: 1px solid var(--line); box-shadow: none; }
+    .btn.ghost::after { display:none; }
+    .btn.green { background: linear-gradient(135deg, #1de8a0, #0d7a6a); box-shadow: 0 4px 18px rgba(29,232,160,0.3); }
+    .btn.gold { background: linear-gradient(135deg, #ffd700, #c87800); box-shadow: 0 4px 18px rgba(255,215,0,0.3); color: #1a1000; }
+    .btn.wide { width: 100%; margin-top: 8px; }
+    .btn.icon-btn { display: flex; align-items: center; justify-content: center; gap: 7px; }
+
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.05) inset; }
+    .card + .card, .card + .section-title { margin-top: 10px; }
+    .card2 { background: var(--card2); border: 1px solid var(--line2); border-radius: 15px; padding: 12px; }
+
+    .notice-bar { margin: 8px 0; padding: 10px 13px; border-radius: 14px; background: rgba(14,12,34,0.8); border: 1px solid var(--line); font-size: 12.5px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+    .notice-bar.ok { border-color: rgba(60,255,176,0.3); color: var(--green); }
+    .notice-bar.warn { border-color: rgba(255,159,67,0.3); color: var(--orange); }
+
+    .section-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin: 16px 0 8px; }
+    .label { font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+    .mono { font-variant-numeric: tabular-nums; }
+    .muted { color: var(--muted); }
+    .green-text { color: var(--green); }
+    .gold-text { color: var(--gold); }
+    .blue-text { color: var(--blue); }
+    .violet-text { color: var(--violet2); }
+
+    .pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; background: rgba(157,77,255,0.15); border: 1px solid rgba(157,77,255,0.28); font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .pill.green { background: rgba(60,255,176,0.1); border-color: rgba(60,255,176,0.25); color: var(--green); }
+    .pill.blue { background: rgba(21,201,255,0.1); border-color: rgba(21,201,255,0.25); color: var(--blue); }
+    .pill.gold { background: rgba(255,215,0,0.1); border-color: rgba(255,215,0,0.3); color: var(--gold); }
+
+    .row { display: flex; align-items: center; gap: 10px; }
+    .between { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .col { display: flex; flex-direction: column; gap: 6px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .progress { height: 7px; background: rgba(255,255,255,0.07); border-radius: 999px; overflow: hidden; margin-top: 8px; }
+    .progress-bar { height: 100%; border-radius: inherit; transition: width .3s ease; }
+    .progress-bar.energy { background: linear-gradient(90deg, var(--blue), var(--violet)); }
+    .progress-bar.xp { background: linear-gradient(90deg, var(--green), var(--blue)); }
+
+    .page { display: none; animation: fade .18s ease both; }
+    .page.active { display: block; }
+    @keyframes fade { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+    .balance-card { background: linear-gradient(135deg, rgba(28,16,68,0.95), rgba(18,14,50,0.95)); border: 1px solid rgba(157,77,255,0.3); border-radius: var(--radius); padding: 18px; position: relative; overflow: hidden; }
+    .balance-card::before { content:''; position:absolute; top:-60px; right:-40px; width:180px; height:180px; border-radius:50%; background: radial-gradient(circle, rgba(157,77,255,0.18), transparent 70%); pointer-events: none; }
+    .balance-tf { font-size: clamp(28px,9vw,42px); font-weight: 900; letter-spacing: -1px; background: linear-gradient(90deg, #e8c0ff, #a060ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .balance-ton { font-size: 15px; color: var(--blue); font-weight: 700; margin-top: 2px; }
+
+    .hero { text-align: center; padding: 6px 0 4px; position: relative; }
+    .hero-stats { display: flex; justify-content: center; gap: 14px; margin-bottom: 8px; flex-wrap: wrap; }
+    .coin-wrap { position: relative; width: min(68vw, 240px); height: min(68vw, 240px); margin: 8px auto; }
+    .coin-ring { position: absolute; inset: -8px; border-radius: 50%; background: conic-gradient(from 0deg, #9d4dff, #15c9ff, #3cffb0, #9d4dff); animation: spin 4s linear infinite; opacity: 0.6; }
+    .coin-ring-mask { position: absolute; inset: 2px; border-radius: 50%; background: var(--bg); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .coin { position: absolute; inset: 8px; border-radius: 50%; background: radial-gradient(circle at 36% 26%, #dda0ff, #8c36e7 38%, #38157e 62%, #0e1023 82%); box-shadow: 0 0 50px rgba(157,77,255,0.85), 0 0 100px rgba(157,77,255,0.25), inset 0 0 40px rgba(0,0,0,0.65); display: grid; place-items: center; user-select: none; cursor: pointer; transition: transform 0.09s ease, box-shadow 0.09s; }
+    .coin:active { transform: scale(0.95); box-shadow: 0 0 80px rgba(157,77,255,1), inset 0 0 50px rgba(0,0,0,0.8); }
+    .coin-inner { display: flex; flex-direction: column; align-items: center; gap: 2px; pointer-events: none; }
+    .coin-icon { width: 52px; height: 52px; }
+    .coin-label { font-size: 13px; font-weight: 800; color: rgba(255,255,255,0.7); letter-spacing: 2px; }
+    .float { position: absolute; pointer-events: none; color: #fff; font-weight: 900; font-size: 18px; text-shadow: 0 0 16px #9d4dff, 0 2px 4px rgba(0,0,0,0.5); animation: fly .8s ease-out forwards; white-space: nowrap; }
+    @keyframes fly { from { opacity:1; transform:translate(-50%,0) scale(0.8); } to { opacity:0; transform:translate(-50%,-80px) scale(1.3); } }
+    .tap-btn { width: 84%; max-width: 320px; padding: 15px; border-radius: 18px; font-size: 16px; font-weight: 800; background: linear-gradient(135deg, #9d4dff, #4716c5); box-shadow: 0 6px 28px rgba(157,77,255,0.45), inset 0 1px 0 rgba(255,255,255,0.2); transition: transform 0.1s, box-shadow 0.1s; letter-spacing: 0.5px; }
+    .tap-btn:active { transform: scale(0.97); box-shadow: 0 2px 12px rgba(157,77,255,0.5); }
+
+    .regen-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12px; color: var(--muted); }
+
+    .ad-box { border-radius: 18px; padding: 14px 16px; background: linear-gradient(120deg, rgba(60,18,110,0.85), rgba(25,18,80,0.85)); border: 1px solid rgba(157,77,255,0.2); display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 10px 0; }
+    .ad-rewards { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 5px; }
+    .reward-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 8px; font-size: 12px; font-weight: 700; background: rgba(255,255,255,0.08); }
+
+    .boost-card { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px; margin: 8px 0; border-radius: 16px; background: var(--card2); border: 1px solid var(--line2); transition: border-color .2s; }
+    .boost-card:hover { border-color: var(--line); }
+    .boost-icon { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; flex-shrink: 0; }
+    .boost-icon.x2 { background: linear-gradient(135deg, rgba(60,255,176,0.2), rgba(21,201,255,0.15)); border: 1px solid rgba(60,255,176,0.2); }
+    .boost-icon.x5 { background: linear-gradient(135deg, rgba(157,77,255,0.2), rgba(71,22,197,0.15)); border: 1px solid rgba(157,77,255,0.25); }
+    .boost-icon.x10 { background: linear-gradient(135deg, rgba(255,159,67,0.2), rgba(255,77,121,0.15)); border: 1px solid rgba(255,159,67,0.25); }
+    .boost-name { font-weight: 800; font-size: 15px; }
+    .boost-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .active-boost-bar { margin: 10px 0; padding: 12px 14px; border-radius: 15px; background: linear-gradient(120deg, rgba(255,160,0,0.12), rgba(255,70,100,0.08)); border: 1px solid rgba(255,160,0,0.25); display: flex; align-items: center; justify-content: space-between; }
+
+    .ref-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .stat-box { padding: 12px; border-radius: 14px; background: var(--card2); border: 1px solid var(--line2); text-align: center; }
+    .stat-box .val { font-size: 20px; font-weight: 900; }
+    .stat-box .lbl { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .ref-link-row { display: flex; gap: 8px; align-items: center; margin: 10px 0; }
+    .ref-link-input { flex: 1; border: 1px solid var(--line); background: rgba(5,6,18,0.8); color: var(--muted); padding: 10px 12px; border-radius: 12px; outline: none; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ref-card { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin: 7px 0; border-radius: 15px; background: var(--card2); border: 1px solid var(--line2); }
+    .ref-avatar { width: 40px; height: 40px; border-radius: 13px; flex-shrink: 0; display: grid; place-items: center; font-size: 18px; font-weight: 900; background: linear-gradient(135deg, rgba(157,77,255,0.3), rgba(71,22,197,0.3)); border: 1px solid rgba(157,77,255,0.2); }
+    .ref-info { flex: 1; min-width: 0; }
+    .ref-name { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ref-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .rating-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 14px; background: var(--card2); border: 1px solid var(--line2); margin: 7px 0; }
+    .rating-pos { width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0; display: grid; place-items: center; font-weight: 900; font-size: 14px; background: rgba(255,255,255,0.06); }
+    .rating-pos.gold { background: rgba(255,215,0,0.15); color: var(--gold); }
+    .rating-pos.silver { background: rgba(200,200,230,0.1); color: #c0c8e0; }
+    .rating-pos.bronze { background: rgba(205,127,50,0.12); color: #cd7f32; }
+    .rating-name { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rating-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+    .rating-tf { font-weight: 800; font-size: 14px; color: var(--violet2); white-space: nowrap; }
+
+    .wallet-rate-card { background: linear-gradient(135deg, rgba(21,201,255,0.08), rgba(157,77,255,0.06)); border: 1px solid rgba(21,201,255,0.2); border-radius: 16px; padding: 16px; text-align: center; margin-bottom: 12px; }
+    .wallet-rate { font-size: 20px; font-weight: 900; color: var(--blue); }
+    .wallet-rate-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .input-label { font-size: 12px; color: var(--muted); margin-bottom: 5px; font-weight: 600; }
+    .styled-input { width: 100%; border: 1px solid rgba(140,80,255,0.2); background: rgba(5,6,22,0.85); color: #fff; padding: 12px 14px; border-radius: 13px; outline: none; transition: border-color .2s; margin: 8px 0; }
+    .styled-input:focus { border-color: rgba(157,77,255,0.6); }
+    .withdraw-preview { padding: 12px 14px; border-radius: 13px; margin: 8px 0; background: rgba(21,201,255,0.06); border: 1px solid rgba(21,201,255,0.15); display: flex; justify-content: space-between; align-items: center; }
+    .history-item { padding: 9px 0; border-bottom: 1px solid var(--line2); font-size: 13.5px; color: var(--muted); }
+    .history-item:last-child { border-bottom: none; }
+
+    .nav { position: fixed; left: 50%; bottom: calc(10px + var(--safe)); transform: translateX(-50%); width: calc(100% - 20px); max-width: 430px; height: 68px; display: flex; justify-content: space-around; align-items: center; border-radius: 24px; border: 1px solid rgba(140,80,255,0.2); background: rgba(10,9,26,0.96); box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.04) inset; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 20; }
+    .nav-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 10px; border-radius: 16px; color: rgba(150,140,200,0.7); font-size: 10.5px; font-weight: 600; transition: color .2s, background .2s; min-width: 54px; }
+    .nav-btn svg { width: 22px; height: 22px; }
+    .nav-btn.active { color: #fff; background: rgba(157,77,255,0.15); }
+    .nav-btn.active svg { filter: drop-shadow(0 0 6px rgba(157,77,255,0.7)); }
+
+    .sep { height: 1px; background: var(--line2); margin: 12px 0; }
+    .empty { padding: 24px; text-align: center; color: var(--muted); font-size: 14px; }
+    .empty-icon { font-size: 32px; margin-bottom: 8px; }
+
+    @media (max-width: 360px) {
+      .app { padding-left: 10px; padding-right: 10px; }
+      .grid2 { grid-template-columns: 1fr; }
+      .ref-stats { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <div class="brand">
+        <div class="logo">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="white" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/></svg>
+        </div>
+        <div class="brand-name">TAPFORGE</div>
+      </div>
+      <div class="header-right">
+        <div id="connDot" class="conn-dot"></div>
+        <button class="btn sm icon-btn" onclick="openPage('wallet')">
+          <svg viewBox="0 0 20 20" fill="none" width="14" height="14"><rect x="2" y="5" width="16" height="12" rx="3" stroke="white" stroke-width="1.5"/><path d="M14 10h2v3h-2a1.5 1.5 0 0 1 0-3z" fill="white"/><path d="M2 9h16" stroke="white" stroke-width="1.5"/></svg>
+          Гаманець
+        </button>
+      </div>
+    </header>
+
+    <div id="noticeBar" class="notice-bar">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M7 5v3m0 2v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <span id="noticeText">Завантаження...</span>
+    </div>
+
+    <!-- HOME -->
+    <section id="home" class="page active">
+      <div class="balance-card">
+        <div class="between">
+          <div>
+            <div class="label">Баланс TF</div>
+            <div class="balance-tf mono" id="tfBalance">0</div>
+            <div class="balance-ton">≈ <span id="tonEstimate">0.0000</span> TON</div>
+          </div>
+          <div class="col" style="align-items:flex-end;gap:6px">
+            <div class="pill" id="levelBadge">Lv 1 · Новачок</div>
+            <div class="pill blue" id="boostBadge" style="display:none">🚀 x<span id="boostMultBadge">1</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero">
+        <div class="hero-stats">
+          <div class="pill">+<span id="tapReward">1</span> TF / клік</div>
+          <div class="pill blue">Буст x<span id="boostMult">1</span></div>
+        </div>
+        <div class="coin-wrap" id="coinWrap">
+          <div class="coin-ring"></div>
+          <div class="coin-ring-mask"></div>
+          <div class="coin" id="coinBtn" onclick="tap(event)">
+            <div class="coin-inner">
+              <svg class="coin-icon" viewBox="0 0 52 52" fill="none">
+                <circle cx="26" cy="26" r="24" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+                <path d="M26 10L31 21H43L33.5 27.5L37 38L26 31L15 38L18.5 27.5L9 21H21L26 10Z" fill="white" opacity="0.9"/>
+              </svg>
+              <div class="coin-label">TF</div>
+            </div>
+          </div>
+        </div>
+        <button class="tap-btn icon-btn" onclick="tap(event)">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2v8M5 6l4-4 4 4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 13h12" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+          Тапай — заробляй TF
+        </button>
+      </div>
+
+      <div class="grid2">
+        <div class="card" id="energyCard">
+          <div class="between">
+            <div class="row" style="gap:6px">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M9 2L4 9h5l-2 5 6-7H8l1-5z" fill="#15c9ff" stroke="#15c9ff" stroke-width="0.5" stroke-linejoin="round"/></svg>
+              <span style="font-weight:700;font-size:13px">Енергія</span>
+            </div>
+            <b class="mono" style="font-size:13px"><span id="energy">500</span>/<span id="maxEnergy">500</span></b>
+          </div>
+          <div class="progress"><div id="energyBar" class="progress-bar energy" style="width:100%"></div></div>
+          <div class="regen-row" id="energyTimer">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6A4 4 0 1 1 6 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M10 2v4H6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Повна
+          </div>
+          <div id="energyEmptyActions" style="display:none;margin-top:8px">
+            <button class="btn green sm wide icon-btn" onclick="watchAd('rewarded')">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 3l6 4-6 4V3z" fill="white"/></svg>
+              Відновити миттєво
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="between">
+            <div class="row" style="gap:6px">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.8 3.6L14 6.5l-3 2.9.7 4.1L8 11.5l-3.7 1.95.7-4.1-3-2.9 4.2-.9L8 2z" fill="#3cffb0" stroke="#3cffb0" stroke-width="0.5" stroke-linejoin="round"/></svg>
+              <span style="font-weight:700;font-size:13px">XP</span>
+            </div>
+            <b class="mono" style="font-size:13px"><span id="xp">0</span>/<span id="nextXp">500</span></b>
+          </div>
+          <div class="progress"><div id="xpBar" class="progress-bar xp" style="width:0%"></div></div>
+          <div class="regen-row">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1l1.4 2.8L11 4.5l-2.5 2.4.6 3.4L6 8.7l-3.1 1.6.6-3.4L1 4.5l3.6-.7L6 1z" fill="currentColor"/></svg>
+            Бонус: +<span id="levelBonus">0</span>%
+          </div>
+        </div>
+      </div>
+
+      <div class="active-boost-bar" id="activeBoostBar" style="display:none">
+        <div class="row" style="gap:8px">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2l2 5h5l-4 3 1.5 5L9 12l-4.5 3L6 10 2 7h5L9 2z" fill="#ffd700"/></svg>
+          <div>
+            <div style="font-weight:700;font-size:13px">Буст активний</div>
+            <div style="font-size:12px;color:var(--muted)" id="boostTimer">—</div>
+          </div>
+        </div>
+        <div class="pill gold" id="boostMultPill">x1</div>
+      </div>
+
+      <div class="ad-box">
+        <div>
+          <div style="font-weight:700;font-size:14px;margin-bottom:4px">Дивись рекламу</div>
+          <div class="ad-rewards">
+            <div class="reward-chip">⚡ +250</div>
+            <div class="reward-chip">🌟 +100 TF</div>
+            <div class="reward-chip">✨ +250 XP</div>
+          </div>
+        </div>
+        <button class="btn sm icon-btn" onclick="watchAd('ad')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 3l6 4-6 4V3z" fill="white"/></svg>
+          Дивитись
+        </button>
+      </div>
+
+      <div class="section-title">Бустери</div>
+      <div id="boosts"></div>
+    </section>
+
+    <!-- FRIENDS -->
+    <section id="friends" class="page">
+      <div style="margin-bottom:14px">
+        <div style="font-size:22px;font-weight:800">Реферальна програма</div>
+        <div class="muted" style="font-size:13px;margin-top:4px">10% від TF твоїх друзів — тобі</div>
+      </div>
+      <div class="ref-stats">
+        <div class="stat-box"><div class="val violet-text" id="refCount">0</div><div class="lbl">Запрошено</div></div>
+        <div class="stat-box"><div class="val green-text" id="activeRefCount">0</div><div class="lbl">Активних</div></div>
+        <div class="stat-box"><div class="val gold-text mono" id="refEarned">0</div><div class="lbl">Зароблено TF</div></div>
+      </div>
+      <div class="card">
+        <div class="label">Реферальне посилання</div>
+        <div class="ref-link-row">
+          <input class="ref-link-input" id="refLink" readonly />
+          <button class="btn sm icon-btn" onclick="copyRef()">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="4" y="4" width="8" height="8" rx="2" stroke="white" stroke-width="1.3"/><path d="M3 10V3a1 1 0 0 1 1-1h7" stroke="white" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Копіювати
+          </button>
+        </div>
+        <div class="muted" style="font-size:12px">Новий гравець отримує +1 000 TF · Ти отримуєш +5 000 TF</div>
+      </div>
+      <div class="section-title">Твої реферали</div>
+      <div id="refList"></div>
+    </section>
+
+    <!-- RATING -->
+    <section id="rating" class="page">
+      <div style="margin-bottom:14px">
+        <div style="font-size:22px;font-weight:800">Топ гравців</div>
+        <div class="muted" style="font-size:13px;margin-top:4px">Топ-100 за кількістю TF</div>
+      </div>
+      <div id="ratingList"></div>
+    </section>
+
+    <!-- WALLET -->
+    <section id="wallet" class="page">
+      <div style="margin-bottom:14px">
+        <div style="font-size:22px;font-weight:800">Гаманець</div>
+        <div class="muted" style="font-size:13px;margin-top:4px">Виводь TF у TON</div>
+      </div>
+      <div class="wallet-rate-card">
+        <div class="row" style="justify-content:center;gap:10px">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#0098EA"/><path d="M18.5 9h-9a.5.5 0 0 0-.4.8l4.3 5.9a.5.5 0 0 0 .8 0l4.7-6.3a.5.5 0 0 0-.4-.4z" fill="white"/></svg>
+          <div>
+            <div class="wallet-rate">1 TON = <span id="walletRate">1 000 000</span> TF</div>
+            <div class="wallet-rate-sub">Комісія: <b id="fee">15</b>% · мін: <b id="minWd">500 000</b> TF</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="input-label">TON адреса гаманця</div>
+        <input class="styled-input" id="addr" placeholder="UQ... або EQ..." />
+        <div class="input-label">Сума TF для обміну</div>
+        <input class="styled-input" id="amountTF" type="number" placeholder="Мінімум 500 000 TF" />
+        <div class="withdraw-preview">
+          <span class="muted" style="font-size:13px">До отримання</span>
+          <span style="font-weight:800;font-size:16px;color:var(--blue)"><span id="netTon">0.0000</span> TON</span>
+        </div>
+        <button class="btn wide icon-btn" onclick="withdraw()">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v10m-4-4l4 4 4-4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 14h12" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+          Подати заявку на вивід
+        </button>
+        <div class="section-title" style="margin-top:14px">Історія операцій</div>
+        <div id="history"><div class="empty"><div class="empty-icon">📋</div>Поки порожньо</div></div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="nav">
+    <button class="nav-btn active" id="nav-home" onclick="openPage('home')">
+      <svg viewBox="0 0 22 22" fill="none"><path d="M3 9.5L11 3l8 6.5V19a1 1 0 0 1-1 1H14v-5h-4v5H4a1 1 0 0 1-1-1V9.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      Головна
+    </button>
+    <button class="nav-btn" onclick="watchAd('ad')">
+      <svg viewBox="0 0 22 22" fill="none"><rect x="2" y="5" width="18" height="13" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="M9 8.5l5 2.5-5 2.5V8.5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      Реклама
+    </button>
+    <button class="nav-btn" id="nav-friends" onclick="openPage('friends')">
+      <svg viewBox="0 0 22 22" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M3 18c0-3 2.2-5 5-5h1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="15" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M12 18c0-2.2 1.3-3.8 3-3.8s3 1.6 3 3.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Друзі
+    </button>
+    <button class="nav-btn" id="nav-rating" onclick="openPage('rating')">
+      <svg viewBox="0 0 22 22" fill="none"><path d="M6 14v4M11 10v8M16 6v12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      Рейтинг
+    </button>
+    <button class="nav-btn" id="nav-wallet" onclick="openPage('wallet')">
+      <svg viewBox="0 0 22 22" fill="none"><rect x="2" y="5" width="18" height="14" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="M15 12h2v3h-2a1.5 1.5 0 0 1 0-3z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M2 10h18" stroke="currentColor" stroke-width="1.5"/></svg>
+      Гаманець
+    </button>
+  </nav>
+
+<script>
+// =============================================
+//  TAPFORGE — повністю автономний офлайн-режим
+//  Дані зберігаються в localStorage
+//  При наявності сервера — синхронізується з ним
+// =============================================
+
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+const tgUser = tg?.initDataUnsafe?.user;
+const startParam = tg?.initDataUnsafe?.start_param
+  || new URLSearchParams(location.search).get('start') || '';
+
+// Унікальний ID гравця
+let tgId = tgUser?.id
+  ? String(tgUser.id)
+  : (localStorage.getItem('tf_uid') || (() => {
+      const id = 'local_' + Math.random().toString(36).slice(2, 10);
+      localStorage.setItem('tf_uid', id);
+      return id;
+    })());
+localStorage.setItem('tf_uid', tgId);
+
+const PLAYER_NAME = tgUser?.first_name || 'Гравець';
+
+// ── Конфіг (має збігатися з server.js) ──
+const CFG = {
+  botUsername:            'tapforge_bot',
+  tonRate:                1_000_000,
+  withdrawFee:            15,
+  minWithdrawTF:          500_000,
+  baseEnergy:             500,
+  maxLevel:               200,
+  fullEnergyRegenMs:      10 * 60 * 1000,
+  ad:      { tf: 100,  xp: 250, energy: 250 },
+  rewarded:{ tf: 250,  xp: 500, energy: 500 },
+  referralSignupReward:   5_000,
+  referralNewUserBonus:   1_000,
+  referralPassivePercent: 10,
+  boosters: {
+    x2:  { multiplier: 2,  price: 5_000,   durationMs: 15*60*1000 },
+    x5:  { multiplier: 5,  price: 25_000,  durationMs: 10*60*1000 },
+    x10: { multiplier: 10, price: 100_000, durationMs:  5*60*1000 },
+  }
+};
+
+// ── Локальна "база даних" ──
+const DB_KEY = 'tf_db_v2';
+
+function loadLocalDb() {
+  try {
+    const raw = localStorage.getItem(DB_KEY);
+    if (raw) {
+      const db = JSON.parse(raw);
+      if (!db.users) db.users = {};
+      if (!db.withdrawals) db.withdrawals = [];
+      return db;
+    }
+  } catch {}
+  return { users: {}, withdrawals: [] };
+}
+
+function saveLocalDb(db) {
+  try { localStorage.setItem(DB_KEY, JSON.stringify(db)); } catch {}
+}
+
+// ── Ігрові функції ──
+function now() { return Date.now(); }
+
+function refCode(id) {
+  const clean = String(id).replace(/\D/g, '');
+  return 'TF' + (clean.slice(-10) || id);
+}
+
+function xpRequired(level) {
+  if (level >= CFG.maxLevel) return Infinity;
+  return Math.floor(500 * Math.pow(level, 2.6));
+}
+
+function tapBonusByLevel(level) {
+  if (level <= 100) return Math.floor(level / 10) * 0.05;
+  return 0.5 + Math.floor((level - 100) / 10) * 0.02;
+}
+
+function maxEnergyByLevel(level) {
+  return CFG.baseEnergy + Math.floor(level / 10) * 25;
+}
+
+function rankByLevel(level) {
+  if (level >= 200) return 'Creator';
+  if (level >= 181) return 'Forge God';
+  if (level >= 161) return 'Forge King';
+  if (level >= 141) return 'Безсмертний';
+  if (level >= 121) return 'Титан';
+  if (level >= 101) return 'Герой';
+  if (level >= 81)  return 'Ветеран';
+  if (level >= 61)  return 'Командир';
+  if (level >= 41)  return 'Майстер';
+  if (level >= 21)  return 'Шукач';
+  return 'Новачок';
+}
+
+function createUser(id, name) {
+  return {
+    id: String(id), name,
+    refCode: refCode(id),
+    referredBy: null, referrals: [], activeReferrals: [],
+    referralEarnings: 0,
+    tf: 0, xp: 0, level: 1,
+    energy: CFG.baseEnergy, lastEnergyAt: now(),
+    history: [], activeBoost: null,
+    adViews: 0, createdAt: now(), lastSeenAt: now()
+  };
+}
+
+function applyEnergyRegen(user) {
+  const max = maxEnergyByLevel(user.level);
+  if (user.energy >= max) return;
+  const elapsed = now() - (user.lastEnergyAt || now());
+  const add = Math.floor(elapsed * (max / CFG.fullEnergyRegenMs));
+  if (add > 0) {
+    user.energy = Math.min(max, user.energy + add);
+    user.lastEnergyAt = now();
+  }
+}
+
+function checkLevelUp(user) {
+  while (user.level < CFG.maxLevel && user.xp >= xpRequired(user.level)) {
+    user.xp -= xpRequired(user.level);
+    user.level += 1;
+    user.energy = Math.min(maxEnergyByLevel(user.level), user.energy + 25);
+    user.history.unshift('⬆️ Новий рівень: ' + user.level);
+  }
+}
+
+function activeMultiplier(user) {
+  if (user.activeBoost && user.activeBoost.endsAt > now()) return user.activeBoost.multiplier;
+  user.activeBoost = null;
+  return 1;
+}
+
+function enrichUser(user) {
+  const maxEnergy   = maxEnergyByLevel(user.level);
+  const multiplier  = activeMultiplier(user);
+  const tapBase     = 1 * (1 + tapBonusByLevel(user.level));
+  const tapReward   = +(tapBase * multiplier).toFixed(2);
+  const boostEndsIn = user.activeBoost ? Math.max(0, user.activeBoost.endsAt - now()) : 0;
+  const nextLevelXp = xpRequired(user.level);
+  return {
+    ...user,
+    maxEnergy,
+    rank: rankByLevel(user.level),
+    tapBonusPercent:  Math.round(tapBonusByLevel(user.level) * 100),
+    tapReward,
+    tonRate:          CFG.tonRate,
+    withdrawFee:      CFG.withdrawFee,
+    minWithdrawTF:    CFG.minWithdrawTF,
+    tonEstimate:      user.tf / CFG.tonRate,
+    netTonEstimate:   (user.tf / CFG.tonRate) * (1 - CFG.withdrawFee / 100),
+    nextLevelXp:      nextLevelXp === Infinity ? null : nextLevelXp,
+    boostMultiplier:  multiplier,
+    boostEndsIn,
+    referralLink:     'https://t.me/' + CFG.botUsername + '?start=' + user.refCode,
+    referralCount:    (user.referrals || []).length,
+    activeReferralCount: (user.activeReferrals || []).length,
+  };
+}
+
+// ── Отримати/створити поточного гравця ──
+function getLocalUser() {
+  const db = loadLocalDb();
+  if (!db.users[tgId]) {
+    db.users[tgId] = createUser(tgId, PLAYER_NAME);
+    // Застосувати реферальний код якщо є
+    if (startParam && startParam !== db.users[tgId].refCode) {
+      const inviter = Object.values(db.users).find(u => u.refCode === startParam);
+      if (inviter) {
+        db.users[tgId].referredBy = inviter.id;
+        db.users[tgId].tf  += CFG.referralNewUserBonus;
+        db.users[tgId].xp  += CFG.referralNewUserBonus;
+        inviter.tf += CFG.referralSignupReward;
+        inviter.xp += CFG.referralSignupReward;
+        if (!inviter.referrals.includes(tgId)) inviter.referrals.push(tgId);
+        if (!inviter.activeReferrals.includes(tgId)) inviter.activeReferrals.push(tgId);
+        inviter.referralEarnings += CFG.referralSignupReward;
+        inviter.history.unshift('👥 Новий реферал: +' + CFG.referralSignupReward + ' TF');
+        db.users[tgId].history.unshift('🎁 Бонус за рефералку: +' + CFG.referralNewUserBonus + ' TF');
+      }
+    }
+    saveLocalDb(db);
+  }
+  const u = db.users[tgId];
+  u.lastSeenAt = now();
+  if (PLAYER_NAME !== 'Гравець') u.name = PLAYER_NAME;
+  applyEnergyRegen(u);
+  checkLevelUp(u);
+  saveLocalDb(db);
+  return enrichUser(u);
+}
+
+// ── Стан програми ──
+let user = null;
+let useServer = false;
+let boostInterval = null;
+
+// ── DOM helpers ──
+const $  = id => document.getElementById(id);
+const fmt    = n  => Math.floor(Number(n)||0).toLocaleString('uk-UA');
+const fmtTon = n  => (Number(n)||0).toFixed(4);
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function timeAgo(ts) {
+  if (!ts) return '';
+  const d = Date.now() - ts;
+  if (d < 60000)    return 'щойно';
+  if (d < 3600000)  return Math.floor(d/60000)   + ' хв тому';
+  if (d < 86400000) return Math.floor(d/3600000)  + ' год тому';
+  return Math.floor(d/86400000) + ' дн тому';
+}
+
+// ── Сервер (опціонально) ──
+function apiHeaders() {
+  return {
+    'Content-Type':     'application/json',
+    'x-telegram-id':    tgId,
+    'x-start-param':    startParam,
+    'x-telegram-name':  PLAYER_NAME,
+    'x-telegram-init-data': tg?.initData || '',
+  };
+}
+
+async function serverApi(path, opts = {}) {
+  const bases = [];
+  if (['localhost','127.0.0.1',''].includes(location.hostname) || location.protocol === 'file:')
+    bases.push('http://localhost:3000/api');
+  bases.push(location.origin + '/api');
+
+  for (const base of [...new Set(bases)]) {
+    try {
+      const r = await fetch(base + path, {
+        ...opts,
+        headers: { ...apiHeaders(), ...(opts.headers||{}) },
+        signal: AbortSignal.timeout(4000),
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'err');
+      return data;
+    } catch {}
+  }
+  throw new Error('no server');
+}
+
+// ── Ініціалізація ──
+async function init() {
+  // Спочатку завантажуємо локально — миттєво
+  user = getLocalUser();
+  render();
+  setStatus('local');
+
+  // Потім пробуємо сервер у фоні
+  try {
+    const serverUser = await serverApi('/me');
+    user = serverUser;
+    useServer = true;
+    render();
+    setStatus('server');
+  } catch {
+    useServer = false;
+    setStatus('local');
+  }
+}
+
+function setStatus(mode) {
+  const dot  = $('connDot');
+  const bar  = $('noticeBar');
+  const text = $('noticeText');
+  dot.style.cssText = '';
+  bar.className = 'notice-bar';
+  if (mode === 'server') {
+    dot.style.background   = 'var(--green)';
+    dot.style.boxShadow    = '0 0 8px var(--green)';
+    bar.classList.add('ok');
+    text.textContent = '✅ Підключено до сервера · ID: ' + tgId;
+  } else {
+    dot.style.background   = 'var(--orange)';
+    dot.style.boxShadow    = '0 0 8px var(--orange)';
+    bar.classList.add('warn');
+    text.textContent = '💾 Локальний режим · дані збережені на цьому пристрої';
+  }
+}
+
+// ── Дія: виконати локально + спробувати сервер ──
+async function act(localFn, serverPath, serverOpts = {}) {
+  // Локальна дія (миттєво)
+  const db = loadLocalDb();
+  const result = localFn(db);
+  saveLocalDb(db);
+  user = enrichUser(db.users[tgId]);
+  render();
+
+  // Спробувати синхронізувати з сервером
+  if (useServer) {
+    try {
+      const serverUser = await serverApi(serverPath, serverOpts);
+      user = serverUser;
+      render();
+    } catch {
+      useServer = false;
+      setStatus('local');
+    }
+  }
+  return result;
+}
+
+// ── Тап ──
+async function tap(event) {
+  const db = loadLocalDb();
+  const u  = db.users[tgId];
+  if (!u || u.energy <= 0) { showFloat(event, '⚡ 0', true); return; }
+
+  const mult    = activeMultiplier(u);
+  const base    = 1 * (1 + tapBonusByLevel(u.level));
+  const reward  = +(base * mult).toFixed(2);
+
+  u.energy  = Math.max(0, u.energy - 1);
+  u.xp     += 1;
+  u.tf     += reward;
+  checkLevelUp(u);
+
+  // Пасивний дохід реферера
+  if (u.referredBy && db.users[u.referredBy]) {
+    const bonus = Math.floor(reward * CFG.referralPassivePercent / 100);
+    if (bonus > 0) {
+      db.users[u.referredBy].tf += bonus;
+      db.users[u.referredBy].referralEarnings += bonus;
+    }
+  }
+
+  saveLocalDb(db);
+  user = enrichUser(u);
+  render();
+  showFloat(event, '+' + reward + ' TF');
+
+  if (useServer) {
+    try {
+      const res = await serverApi('/tap', { method: 'POST' });
+      user = res.user;
+      render();
+    } catch { useServer = false; setStatus('local'); }
+  }
+}
+
+// ── Реклама ──
+async function watchAd(type) {
+  const r = CFG[type === 'rewarded' ? 'rewarded' : 'ad'];
+  const db = loadLocalDb();
+  const u  = db.users[tgId];
+  u.energy  = Math.min(maxEnergyByLevel(u.level), u.energy + r.energy);
+  u.xp     += r.xp;
+  u.tf     += r.tf;
+  u.adViews = (u.adViews||0) + 1;
+  u.history.unshift('🎬 Реклама: +' + r.tf + ' TF, +' + r.energy + ' ⚡');
+  checkLevelUp(u);
+  saveLocalDb(db);
+  user = enrichUser(u);
+  render();
+  showToast(type === 'rewarded' ? '⚡ Енергію відновлено!' : '🎁 Нагороду отримано!');
+
+  if (useServer) {
+    try {
+      user = await serverApi('/ad', { method: 'POST', body: JSON.stringify({ type }) });
+      render();
+    } catch { useServer = false; setStatus('local'); }
+  }
+}
+
+// ── Буст ──
+async function buyBoost(id) {
+  const b  = CFG.boosters[id];
+  if (!b) return;
+  const db = loadLocalDb();
+  const u  = db.users[tgId];
+  if (u.tf < b.price) { showToast('Недостатньо TF: потрібно ' + fmt(b.price), true); return; }
+  u.tf -= b.price;
+  u.activeBoost = { id, multiplier: b.multiplier, endsAt: now() + b.durationMs };
+  u.history.unshift('🚀 Активовано буст ' + id + ': x' + b.multiplier);
+  saveLocalDb(db);
+  user = enrichUser(u);
+  render();
+  showToast('🚀 Буст активовано!');
+
+  if (useServer) {
+    try {
+      user = await serverApi('/boost', { method: 'POST', body: JSON.stringify({ id }) });
+      render();
+    } catch { useServer = false; setStatus('local'); }
+  }
+}
+
+// ── Вивід ──
+async function withdraw() {
+  const addr     = $('addr').value.trim();
+  const amountTF = Number($('amountTF').value);
+  if (!addr || addr.length < 10) { showToast('Введи коректну TON адресу', true); return; }
+  if (amountTF < CFG.minWithdrawTF) { showToast('Мінімум ' + fmt(CFG.minWithdrawTF) + ' TF', true); return; }
+
+  const db = loadLocalDb();
+  const u  = db.users[tgId];
+  if (u.tf < amountTF) { showToast('Недостатньо TF', true); return; }
+
+  const ton    = amountTF / CFG.tonRate;
+  const netTon = ton * (1 - CFG.withdrawFee / 100);
+  u.tf -= amountTF;
+  u.history.unshift('💸 Заявка на вивід: ' + netTon.toFixed(4) + ' TON');
+  db.withdrawals = db.withdrawals || [];
+  db.withdrawals.push({ id: 'wd_' + now(), userId: tgId, amountTF, ton, netTon, address: addr, status: 'pending', createdAt: now() });
+  saveLocalDb(db);
+  user = enrichUser(u);
+  render();
+  $('addr').value = '';
+  $('amountTF').value = '';
+  showToast('✅ Заявку подано!');
+
+  if (useServer) {
+    try {
+      const res = await serverApi('/withdraw', { method: 'POST', body: JSON.stringify({ address: addr, amountTF }) });
+      user = res.user;
+      render();
+    } catch { useServer = false; setStatus('local'); }
+  }
+}
+
+// ── Рефералів ──
+async function loadReferrals() {
+  const db   = loadLocalDb();
+  const u    = db.users[tgId];
+  const list = (u.referrals||[]).map(id => db.users[id]).filter(Boolean)
+    .map(r => ({ id: r.id, name: r.name, level: r.level, tf: Math.floor(r.tf), lastSeenAt: r.lastSeenAt, rank: rankByLevel(r.level) }))
+    .sort((a,b) => b.tf - a.tf);
+
+  $('refCount').textContent       = list.length;
+  $('activeRefCount').textContent = (u.activeReferrals||[]).length;
+  $('refEarned').textContent      = fmt(u.referralEarnings);
+  $('refLink').value              = enrichUser(u).referralLink;
+
+  $('refList').innerHTML = list.length
+    ? list.map(r => `
+        <div class="ref-card">
+          <div class="ref-avatar">${escHtml((r.name||'?')[0].toUpperCase())}</div>
+          <div class="ref-info">
+            <div class="ref-name">${escHtml(r.name)}</div>
+            <div class="ref-meta">Lv ${r.level} · ${fmt(r.tf)} TF · ${timeAgo(r.lastSeenAt)}</div>
+          </div>
+          <div class="pill">${escHtml(r.rank)}</div>
+        </div>`).join('')
+    : '<div class="empty"><div class="empty-icon">👥</div>Тут зʼявляться твої реферали</div>';
+
+  if (useServer) {
+    try {
+      const data = await serverApi('/referrals');
+      $('refCount').textContent       = data.count;
+      $('activeRefCount').textContent = data.active;
+      $('refEarned').textContent      = fmt(data.earnings);
+      if (data.link) $('refLink').value = data.link;
+      $('refList').innerHTML = data.referrals.length
+        ? data.referrals.map(r => `
+            <div class="ref-card">
+              <div class="ref-avatar">${escHtml((r.name||'?')[0].toUpperCase())}</div>
+              <div class="ref-info">
+                <div class="ref-name">${escHtml(r.name)}</div>
+                <div class="ref-meta">Lv ${r.level} · ${fmt(r.tf)} TF · ${timeAgo(r.lastSeenAt)}</div>
+              </div>
+              <div class="pill">${escHtml(r.rank||'Новачок')}</div>
+            </div>`).join('')
+        : '<div class="empty"><div class="empty-icon">👥</div>Тут зʼявляться твої реферали</div>';
+    } catch {}
+  }
+}
+
+// ── Рейтинг ──
+async function loadRating() {
+  // Локальний рейтинг
+  const db   = loadLocalDb();
+  const list = Object.values(db.users)
+    .sort((a,b) => b.tf - a.tf).slice(0,100)
+    .map((u,i) => ({ pos: i+1, id: u.id, name: u.name, tf: Math.floor(u.tf), level: u.level, rank: rankByLevel(u.level) }));
+
+  renderRating(list);
+
+  if (useServer) {
+    try {
+      const serverList = await serverApi('/rating');
+      renderRating(serverList);
+    } catch {}
+  }
+}
+
+function renderRating(list) {
+  $('ratingList').innerHTML = list.length
+    ? list.map(u => {
+        const cls    = u.pos===1 ? 'gold' : u.pos===2 ? 'silver' : u.pos===3 ? 'bronze' : '';
+        const medal  = u.pos===1 ? '🥇' : u.pos===2 ? '🥈' : u.pos===3 ? '🥉' : u.pos;
+        const isMe   = u.id === tgId ? 'border-color:rgba(157,77,255,0.5);' : '';
+        return `
+          <div class="rating-item" style="${isMe}">
+            <div class="rating-pos ${cls}">${medal}</div>
+            <div style="flex:1;min-width:0">
+              <div class="rating-name">${escHtml(u.name)}${u.id===tgId?' 👈':''}</div>
+              <div class="rating-sub">Lv ${u.level} · ${escHtml(u.rank)}</div>
+            </div>
+            <div class="rating-tf">${fmt(u.tf)} TF</div>
+          </div>`;
+      }).join('')
+    : '<div class="empty"><div class="empty-icon">🏆</div>Рейтинг поки порожній</div>';
+}
+
+// ── Render ──
+function render() {
+  if (!user) return;
+  $('tfBalance').textContent  = fmt(user.tf);
+  $('tonEstimate').textContent= fmtTon(user.tonEstimate);
+  $('walletRate').textContent = fmt(user.tonRate);
+  $('fee').textContent        = user.withdrawFee;
+  $('minWd').textContent      = fmt(user.minWithdrawTF);
+  $('levelBadge').textContent = 'Lv ' + user.level + ' · ' + user.rank;
+  $('tapReward').textContent  = user.tapReward;
+  $('boostMult').textContent  = user.boostMultiplier;
+
+  const hasBoost = user.boostMultiplier > 1;
+  $('boostBadge').style.display   = hasBoost ? '' : 'none';
+  $('boostMultBadge').textContent = user.boostMultiplier;
+
+  $('energy').textContent    = fmt(user.energy);
+  $('maxEnergy').textContent = fmt(user.maxEnergy);
+  $('energyBar').style.width = (user.maxEnergy ? Math.min(100, user.energy/user.maxEnergy*100) : 0) + '%';
+  const empty = user.energy <= 0;
+  $('energyEmptyActions').style.display = empty ? 'block' : 'none';
+
+  if (empty) {
+    $('energyTimer').innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 2l1 3h3l-2.5 2 1 3L6 8.5 3.5 10l1-3L2 5h3L6 2z" fill="currentColor"/></svg> Енергія вичерпана';
+  } else if (user.energy < user.maxEnergy) {
+    const secPerUnit = CFG.fullEnergyRegenMs / user.maxEnergy / 1000;
+    const secLeft    = Math.ceil((user.maxEnergy - user.energy) * secPerUnit);
+    const m = Math.floor(secLeft/60), s = secLeft%60;
+    $('energyTimer').innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M6 3.5V6l1.5 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg> Повна через ~' + m + 'хв ' + s + 'с';
+  } else {
+    $('energyTimer').innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6A4 4 0 1 1 6 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M10 2v4H6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg> Повна';
+  }
+
+  $('xp').textContent    = fmt(user.xp);
+  $('nextXp').textContent= user.nextLevelXp===null ? 'MAX' : fmt(user.nextLevelXp);
+  $('xpBar').style.width = user.nextLevelXp ? Math.min(100, user.xp/user.nextLevelXp*100)+'%' : '100%';
+  $('levelBonus').textContent = user.tapBonusPercent;
+
+  const boostBar = $('activeBoostBar');
+  if (user.boostEndsIn > 0) {
+    boostBar.style.display = 'flex';
+    $('boostMultPill').textContent = 'x' + user.boostMultiplier;
+    startBoostTimer(user.boostEndsIn);
+  } else {
+    boostBar.style.display = 'none';
+    if (boostInterval) { clearInterval(boostInterval); boostInterval = null; }
+  }
+
+  $('refCount').textContent       = user.referralCount;
+  $('activeRefCount').textContent = user.activeReferralCount;
+  $('refEarned').textContent      = fmt(user.referralEarnings);
+  $('refLink').value              = user.referralLink;
+
+  const hist = (user.history||[]).slice(0,15);
+  $('history').innerHTML = hist.length
+    ? hist.map(x => '<div class="history-item">' + escHtml(x) + '</div>').join('')
+    : '<div class="empty"><div class="empty-icon">📋</div>Поки порожньо</div>';
+
+  renderBoosts();
+  updateWithdrawPreview();
+}
+
+function renderBoosts() {
+  const list = [
+    { id:'x2',  icon:'⚡', name:'Буст x2',  desc:'5 000 TF · 15 хвилин', cls:'x2'  },
+    { id:'x5',  icon:'🔥', name:'Буст x5',  desc:'25 000 TF · 10 хвилин', cls:'x5'  },
+    { id:'x10', icon:'💥', name:'Буст x10', desc:'100 000 TF · 5 хвилин',  cls:'x10' },
+  ];
+  $('boosts').innerHTML = list.map(b => `
+    <div class="boost-card">
+      <div class="boost-icon ${b.cls}">${b.icon}</div>
+      <div style="flex:1;min-width:0">
+        <div class="boost-name">${b.name}</div>
+        <div class="boost-desc">${b.desc}</div>
+      </div>
+      <button class="btn sm" onclick="buyBoost('${b.id}')">Купити</button>
+    </div>`).join('');
+}
+
+function startBoostTimer(endsInMs) {
+  if (boostInterval) clearInterval(boostInterval);
+  const endsAt = Date.now() + endsInMs;
+  function tick() {
+    const left = Math.max(0, endsAt - Date.now());
+    const m = Math.floor(left/60000), s = Math.floor((left%60000)/1000);
+    $('boostTimer').textContent = 'Залишилось ' + m + ':' + String(s).padStart(2,'0');
+    if (left <= 0) { clearInterval(boostInterval); $('activeBoostBar').style.display = 'none'; }
+  }
+  tick();
+  boostInterval = setInterval(tick, 1000);
+}
+
+function showFloat(event, text, isError=false) {
+  const wrap = $('coinWrap');
+  const el   = document.createElement('div');
+  el.className   = 'float';
+  el.textContent = text;
+  if (isError) el.style.color = 'var(--danger)';
+  const rect = wrap.getBoundingClientRect();
+  el.style.left  = ((event?.clientX ? event.clientX - rect.left : rect.width/2)) + 'px';
+  el.style.top   = ((event?.clientY ? event.clientY - rect.top  : rect.height/2)) + 'px';
+  wrap.appendChild(el);
+  setTimeout(() => el.remove(), 850);
+}
+
+let toastTimeout;
+function showToast(msg, isError=false) {
+  let el = document.getElementById('toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'toast';
+    Object.assign(el.style, {
+      position:'fixed', bottom:'calc(86px + env(safe-area-inset-bottom,0px))',
+      left:'50%', transform:'translateX(-50%) translateY(10px)',
+      padding:'10px 18px', borderRadius:'14px',
+      fontWeight:'700', fontSize:'13.5px', zIndex:'999',
+      opacity:'0', transition:'all .2s ease', pointerEvents:'none',
+      whiteSpace:'nowrap', maxWidth:'calc(100vw - 40px)', textAlign:'center', color:'white',
+    });
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.background = isError ? 'rgba(180,30,60,0.95)' : 'rgba(28,24,70,0.95)';
+  el.style.border     = '1px solid ' + (isError ? 'rgba(255,77,121,0.4)' : 'rgba(157,77,255,0.3)');
+  el.style.boxShadow  = '0 8px 24px rgba(0,0,0,0.4)';
+  el.style.opacity    = '1';
+  el.style.transform  = 'translateX(-50%) translateY(0)';
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    el.style.opacity   = '0';
+    el.style.transform = 'translateX(-50%) translateY(10px)';
+  }, 2800);
+}
+
+function updateWithdrawPreview() {
+  if (!user) return;
+  const amountTF = Number($('amountTF').value||0);
+  $('netTon').textContent = fmtTon((amountTF/user.tonRate) * (1 - user.withdrawFee/100));
+}
+
+function copyRef() {
+  const v = $('refLink').value;
+  (navigator.clipboard ? navigator.clipboard.writeText(v) : Promise.reject())
+    .then(()  => showToast('🔗 Посилання скопійовано!'))
+    .catch(()  => { $('refLink').select(); document.execCommand('copy'); showToast('🔗 Посилання скопійовано!'); });
+}
+
+async function openPage(id) {
+  document.querySelectorAll('.page').forEach(p  => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  $(id).classList.add('active');
+  const nav = $('nav-' + id);
+  if (nav) nav.classList.add('active');
+  if (id === 'friends') await loadReferrals();
+  if (id === 'rating')  await loadRating();
+}
+
+// ── Старт ──
+$('amountTF').addEventListener('input', updateWithdrawPreview);
+init();
+// Автооновлення кожні 10 секунд
+setInterval(() => { user = getLocalUser(); render(); }, 10000);
+</script>
+</body>
+</html>
